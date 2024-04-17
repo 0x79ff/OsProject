@@ -1,0 +1,35 @@
+
+cd rpc
+rpcgen -C FS.x
+cd ..
+
+mv rpc/FS_clnt.c rpc/FS_clnt.cpp
+mv rpc/FS_svc.c rpc/FS_svc.cpp
+mv rpc/FS_xdr.c rpc/FS_xdr.cpp
+
+
+g++ -g -DRPC_SVC_FG   -c -o obj/FS_clnt.o rpc/FS_clnt.cpp
+g++ -g -DRPC_SVC_FG   -c -o obj/FS_client.o rpc/FS_client.cpp
+g++ -g -DRPC_SVC_FG   -c -o obj/FS_xdr.o rpc/FS_xdr.cpp
+g++ -g -DRPC_SVC_FG   -c -o obj/FS_svc.o rpc/FS_svc.cpp
+g++ -g -DRPC_SVC_FG   -c -o obj/FS_server.o rpc/FS_server.cpp
+
+g++ -g -DRPC_SVC_FG   -o  bin/FS_client  obj/FS_clnt.o obj/FS_client.o obj/FS_xdr.o -lnsl -DRPC_SVC_FG 
+
+g++ -w -g -c -o obj/BufferManager.o src/BufferManager.cpp
+g++ -w -g -c -o obj/OpenFileManager.o src/OpenFileManager.cpp
+g++ -w -g -c -o obj/Kernel.o src/Kernel.cpp
+g++ -w -g -c -o obj/FileSystem.o src/FileSystem.cpp
+g++ -w -g -c -o obj/DiskDriver.o src/DiskDriver.cpp
+g++ -w -g -c -o obj/File.o src/File.cpp
+g++ -w -g -c -o obj/Inode.o src/Inode.cpp
+g++ -w -g -c -o obj/FileManager.o src/FileManager.cpp
+g++ -w -g -c -o obj/Utility.o src/Utility.cpp
+g++ -w -g -c -o obj/mainFS.o src/mainFS.cpp
+
+
+g++ -g -DRPC_SVC_FG -o bin/FS_server  obj/FS_svc.o obj/FS_server.o obj/FS_xdr.o obj/BufferManager.o obj/OpenFileManager.o obj/Kernel.o obj/FileSystem.o obj/DiskDriver.o obj/File.o obj/Inode.o obj/FileManager.o obj/Utility.o obj/mainFS.o -lnsl -DRPC_SVC_FG
+
+
+
+
