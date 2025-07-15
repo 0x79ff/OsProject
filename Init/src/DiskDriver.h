@@ -50,7 +50,7 @@ public:
 
 };
 
-class DiskINode{
+class DiskInode{
 public:
 	unsigned int d_mode; /* 文件类型 和 访问控制位 */
 	int d_nlink; /* 硬联结计数，即该文件在目录树中不同路径名的数量 */
@@ -62,7 +62,7 @@ public:
 	int d_mtime; /* 最后修改时间 */
 
 public:
-	DiskINode()
+	DiskInode()
 	{
 		this->d_mode = 0;
 		this->d_nlink = 0;
@@ -73,5 +73,5 @@ public:
 		this->d_atime = 0;
 		this->d_mtime = 0;
 	}
-	//~DiskINode();
+	//~DiskInode();
 };

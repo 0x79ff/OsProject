@@ -324,7 +324,7 @@ int Inode::Bmap(int lbn)
 			 * 还需根据逻辑块号，经由二次间接索引表找到一次间接索引表
 			 */
 			index = ( (lbn - Inode::LARGE_FILE_BLOCK) / Inode::ADDRESS_PER_INDEX_BLOCK ) % Inode::ADDRESS_PER_INDEX_BLOCK;
-
+		//	index = (lbn - Inode::LARGE_FILE_BLOCK) / Inode::ADDRESS_PER_INDEX_BLOCK;
 			/* iTable指向缓存中的二次间接索引表。该项为零，不存在一次间接索引表 */
 			phyBlkno = iTable[index];
 			if( 0 == phyBlkno )

@@ -19,8 +19,8 @@ public:
     int padding; /* 4 字节填充，使得 b_forw 和 b_back 在 Buf 类中与 Devtab 类中的字段顺序能够一致，否则强制转换会出错。 */
     
     /* 缓存控制块队列勾连指针 */
-    Buf*    b_forw;
-    Buf*    b_back;
+    Buf*    av_forw;
+    Buf*    av_back;
 
 
     int     b_wcount; /* 需传送的字节数 */

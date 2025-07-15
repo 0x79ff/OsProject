@@ -2,23 +2,11 @@
 
 Kernel Kernel::instance;
 
-/*
- * 设备管理、高速缓存管理全局manager
- */
-BufferManager g_BufferManager;
-
-/*
- * 文件系统相关全局manager
- */
-FileSystem g_FileSystem;
+User 		g_User;
 FileManager g_FileManager;
-
-/**/
-DiskDriver g_DiskDriver;
-
-/**/
-User g_User;
-
+FileSystem 	g_FileSystem;
+BufferManager  g_BufferManager;
+DiskDriver 	g_DiskDriver;
 
 Kernel::Kernel()
 {
@@ -28,26 +16,20 @@ Kernel::~Kernel()
 {
 }
 
-
 Kernel& Kernel::Instance()
 {
 	return Kernel::instance;
 }
 
-/**/
 void Kernel::InitDiskDriver()
 {
 	this->m_DiskDriver = &g_DiskDriver;
-    //不用了 磁盘已经格式化了
-    //this->GetDiskDriver().Initialize();
 }
-
 
 void Kernel::InitBuffer()
 {
 	this->m_BufferManager = &g_BufferManager;
 	this->GetBufferManager().Initialize();
-
 }
 
 void Kernel::InitFileSystem()
@@ -62,8 +44,6 @@ void Kernel::InitFileSystem()
 void Kernel::InitUser()
 {
 	this->m_User = &g_User;
-	/*初始化User操作 如下*/
-	//TBD
 }
 
 void Kernel::Initialize()
@@ -73,7 +53,6 @@ void Kernel::Initialize()
 	InitFileSystem();
 	InitUser();
 }
-/**/
 
 BufferManager& Kernel::GetBufferManager()
 {

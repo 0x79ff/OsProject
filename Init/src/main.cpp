@@ -12,6 +12,6 @@ int main()
 {
     //Initialize
     FileSystem fileSystem;
-    fileSystem.FormatImg();
+    fileSystem.Formatting();
     return 0;
 }

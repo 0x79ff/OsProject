@@ -333,7 +333,7 @@ void FileManager::Rdwr( enum File::FileFlags mode )
 		return;
 	}
 
-	u.u_IOParam.m_Base = (unsigned char *)u.u_filename;	/* 目标缓冲区首址 */
+	u.u_IOParam.m_Base = (unsigned char *)u.u_arg[1];	/* 目标缓冲区首址 */
 	u.u_IOParam.m_Count = u.u_arg[2];		/* 要求读/写的字节数 */
 	//u.u_segflg = 0;		/* User Space I/O，读入的内容要送数据段或用户栈段 */
 
@@ -756,7 +756,7 @@ void FileManager::ChDir()
 	u.u_cdir = pInode;
 	//pInode->Prele();
 
-	this->SetCurDir((char *)u.u_filename /* pathname */);
+	this->SetCurDir((char *)u.u_arg[0] /* pathname */);
 }
 
 

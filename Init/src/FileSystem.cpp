@@ -32,18 +32,18 @@ void FileSystem::FormatSuperBlock()
 }
 
 
-void FileSystem::FormatImg()
+void FileSystem::Formatting()
 {
     FormatSuperBlock();
     diskDriver->write((char *)(superBlock),sizeof(SuperBlock),0);
    
     // 0#
-    DiskINode emptyDInode;
+    DiskInode emptyDInode;
     diskDriver->write((char *)(&emptyDInode),sizeof(emptyDInode));
 
     //root 1#
-    DiskINode rootDInode;
-    rootDInode.d_mode=49216;//0B1100000001000000;
+    DiskInode rootDInode;
+    rootDInode.d_mode=0140700;//0B1100000111000000;
     rootDInode.d_nlink=1;
     rootDInode.d_uid=-1;
     rootDInode.d_gid=-1;
@@ -52,8 +52,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&rootDInode),sizeof(rootDInode));
 
     //bin 2#
-    DiskINode binDInode;
-    binDInode.d_mode=49216;//0B1100000001000000;
+    DiskInode binDInode;
+    binDInode.d_mode=0140700;//0B1100000111000000;
     binDInode.d_nlink=1;
     binDInode.d_uid=-1;
     binDInode.d_gid=-1;
@@ -62,8 +62,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&binDInode),sizeof(binDInode));
 
     //etc 3#
-    DiskINode etcDInode;
-    etcDInode.d_mode=49216;//0B1100000001000000;
+    DiskInode etcDInode;
+    etcDInode.d_mode=0140700;//0B1100000111000000;
     etcDInode.d_nlink=1;
     etcDInode.d_uid=-1;
     etcDInode.d_gid=-1;
@@ -72,8 +72,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&etcDInode),sizeof(etcDInode));
 
     //dev 4#
-    DiskINode devDInode;
-    devDInode.d_mode=49216;//0B1100000001000000;
+    DiskInode devDInode;
+    devDInode.d_mode=0140700;//0B1100000111000000;
     devDInode.d_nlink=1;
     devDInode.d_uid=-1;
     devDInode.d_gid=-1;
@@ -82,8 +82,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&devDInode),sizeof(devDInode));
 
     //home 5#
-    DiskINode homeDInode;
-    homeDInode.d_mode=49216;//0B1100000001000000;
+    DiskInode homeDInode;
+    homeDInode.d_mode=0140710;//0B1100000111001000;
     homeDInode.d_nlink=1;
     homeDInode.d_uid=-1;
     homeDInode.d_gid=-1;
@@ -92,8 +92,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&homeDInode),sizeof(homeDInode));
     
     //shell 6#
-    DiskINode shellDInode;
-    shellDInode.d_mode=32832;//0B1000000001000000;
+    DiskInode shellDInode;
+    shellDInode.d_mode=0140710;//0B1100000111001000;
     shellDInode.d_nlink=1;
     shellDInode.d_uid=-1;
     shellDInode.d_gid=-1;
@@ -105,8 +105,8 @@ void FileSystem::FormatImg()
     diskDriver->write((char *)(&shellDInode),sizeof(shellDInode));
     
     //tty1 7#
-    DiskINode tty1Inode;
-    tty1Inode.d_mode=41024;//0B1010000001000000;
+    DiskInode tty1Inode;
+    tty1Inode.d_mode=0140770;//0B1100000111111000;
     tty1Inode.d_nlink=1;
     tty1Inode.d_uid=-1;
     tty1Inode.d_gid=-1;
@@ -166,23 +166,23 @@ void FileSystem::FormatImg()
         diskDriver->write((char*)&emptyBlock, sizeof(emptyBlock));
     }
 
-    //1035 
-    //索引块放128个整数
+    //1035，shell的索引块。那是128个元素的整数数组。
     int IndexBlock[BLOCK_SIZE/sizeof(int)];
     memset(IndexBlock,0,sizeof(IndexBlock));
     IndexBlock[0]=1036;
     IndexBlock[1]=1037;
     diskDriver->write((char*)&IndexBlock, sizeof(IndexBlock));
 
-    //1036 - 1037
+    //1036 - 1037。shell的2个数据块，留给它；虽然shell程序不存在。
     diskDriver->write((char*)&emptyBlock, sizeof(emptyBlock));
     diskDriver->write((char*)&emptyBlock, sizeof(emptyBlock));
 
     //1038 - 1999
-    
     for(int i=1038;i<DATA_ZONE_END_SECTOR;i++){
         diskDriver->write((char*)&emptyBlock, sizeof(emptyBlock));
     }
+
+    //------- 行至此，磁盘写操作完成。下面构造空闲盘块号栈：组长块blkno是100的倍数，存放s_nfree数组，倒着收录[blkno+1,blkno+100]区间的数据块--------
 
     GroupLeaderBlock groupLeaderBlock;
     
@@ -192,7 +192,6 @@ void FileSystem::FormatImg()
             memset(&groupLeaderBlock,0,sizeof(groupLeaderBlock));
         }
         groupLeaderBlock.s_free[groupLeaderBlock.s_nfree++] = i;
-        
     }
     
 

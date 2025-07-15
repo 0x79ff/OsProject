@@ -98,6 +98,5 @@ public:
 	//~FileSystem();
 
     void FormatSuperBlock();
-    void FormatImg();
-
+    void Formatting();
 };

@@ -3,7 +3,7 @@
 CC = g++
 CFLAGS = -w
 BIN_DIR = bin
-BIN = $(BIN_DIR)/Initialize.exe
+BIN = $(BIN_DIR)/Initialize
 SRCS = $(wildcard src/*.cpp)
 OBJS = $(addprefix $(BIN_DIR)/, $(notdir $(SRCS:.cpp=.o)))
 

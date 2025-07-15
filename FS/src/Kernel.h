@@ -11,14 +11,13 @@ public:
 	Kernel();
 	~Kernel();
 	static Kernel& Instance();
-	void Initialize();		/* 该函数完成初始化内核大部分数据结构的初始化 */
+	void Initialize();
 
-
-	BufferManager& GetBufferManager();
-	FileSystem& GetFileSystem();
-	FileManager& GetFileManager();
-    DiskDriver& GetDiskDriver();
-	User& GetUser();		/* 获取当前进程的User结构 */
+	BufferManager& 	GetBufferManager();
+	FileSystem& 	GetFileSystem();
+	FileManager& 	GetFileManager();
+    DiskDriver& 	GetDiskDriver();
+	User& 			GetUser();
 
 private:
 	void InitDiskDriver();
@@ -29,10 +28,9 @@ private:
 private:
 	static Kernel instance;		/* Kernel单体类实例 */
 
-    BufferManager *m_BufferManager;
-    FileSystem *m_FileSystem;
-    FileManager *m_FileManager;
-    DiskDriver *m_DiskDriver;
-    User *m_User;
-
+    BufferManager 	*m_BufferManager;
+    FileSystem 		*m_FileSystem;
+    FileManager 	*m_FileManager;
+    DiskDriver 		*m_DiskDriver;
+    User 			*m_User;
 };

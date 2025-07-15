@@ -26,6 +26,9 @@ public:
 	void ClrBuf(Buf* bp);				/* 清空缓冲区内容 */
 	void Bflush();				/* 将dev指定设备队列中延迟写的缓存全部输出到磁盘 */
 	//Buf& GetBFreeList();				/* 获取自由缓存队列控制块Buf对象引用 */
+
+	void NotAvail(Buf *bp);	// 摘除缓存块bp，上锁
+	void Avail(Buf *bp);		// 缓存块bp解锁、插队尾	
 	
 private:
 	Buf bFreeList;						/* 自由缓存队列控制块 */

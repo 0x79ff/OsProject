@@ -9,22 +9,20 @@
 
 void InitSystem()
 {
-    printf("Initialize System...\n");
-    Kernel::Instance().Initialize();
-    FileManager *fileManager = &Kernel::Instance().GetFileManager();
-    fileManager->rootDirInode = g_InodeTable.IGet(FileSystem::ROOTINO);
-    Kernel::Instance().GetFileSystem().LoadSuperBlock();
-    User *u = &Kernel::Instance().GetUser();
-    u->u_error = User::MYNOERROR;
-    u->u_cdir = g_InodeTable.IGet(FileSystem::ROOTINO);
-    u->u_pdir = NULL;
-    strcpy(u->u_curdir, "/");
-    u->u_dirp = (char*)("/");
-    memset(u->u_arg, 0, sizeof(u->u_arg));
-    printf("Done.\n");
+	    printf("Initialize System...\n");
+	    Kernel::Instance().Initialize();     	// 1、初始化文件系统内核
+
+	    FileManager *fileManager = &Kernel::Instance().GetFileManager();
+	    fileManager->rootDirInode = g_InodeTable.IGet(FileSystem::ROOTINO);    // 2、加载根目录DiskInode
+
+	    Kernel::Instance().GetFileSystem().LoadSuperBlock();   	// 3、加载超级块
+
+	    User *u = &Kernel::Instance().GetUser();   	    		// 4、初始化user结构
+	    u->u_cdir = g_InodeTable.IGet(FileSystem::ROOTINO);    	// 当前工作目录，根目录
+	    strcpy(u->u_curdir, "/");
+
+	    printf("Done.\n");
 }
-
-
 
 void HelpMenu()
 {
@@ -81,7 +79,7 @@ void HelpMenu()
     printf("\t Description:Safely shut down the SecondaryFS. Write dirty cache back to mirror file\n");
 
     printf("14.exit\n");
-    printf("\t Usage:exit\n");
+    printf("\t Usage:exit. Do not use. System will crash!\n");
     printf("\t Description:Close the program SecondaryFS. Equivalent to power outage, file system will lose data\n");
 
     printf("15.help\n");;
@@ -90,8 +88,7 @@ void HelpMenu()
 
 }
 
-
-//declear
+// function declaration
 void Ls();
 void Fopen(char *name,int mode);
 void Fclose(int fd);
@@ -104,8 +101,7 @@ void Fdelete(char *name);
 void Cd(char *name);
 void Fin(char *extername, char* intername);
 void Fout(char* intername,char *extername);
-
-
+void Fshutdown();
 
 // 1 - Ls
 void Ls()
@@ -169,8 +165,8 @@ void Fread(int fd, char *buffer, int length)
 	User *u = &Kernel::Instance().GetUser();
 	u->u_ar0 = 0;
 	u->u_arg[0] = fd;
-    u->u_filename = buffer;
-	//u->u_arg[1] = (int)(buffer);
+    //u->u_filename = buffer;
+	u->u_arg[1] = (int)(buffer);
 	u->u_arg[2] = length;
 	FileManager *fileManager = &Kernel::Instance().GetFileManager();
 	fileManager->Read();
@@ -185,8 +181,8 @@ void Fwrite(int fd, char *buffer, int length)
 	User *u = &Kernel::Instance().GetUser();
 	u->u_ar0 = 0;
 	u->u_arg[0] = fd;
-    u->u_filename = buffer;
-	//u->u_arg[1] = (int)(buffer);
+    //u->u_filename = buffer;
+	u->u_arg[1] = (int)(buffer);
 	u->u_arg[2] = length;
 	FileManager *fileManager = &Kernel::Instance().GetFileManager();
 	fileManager->Write();
@@ -246,8 +242,8 @@ void Cd(char *name)
     User *u = &Kernel::Instance().GetUser();
 	u->u_ar0 = 0;
 	u->u_dirp = name;
-	u->u_filename = name;
-    //u->u_arg[0] = (int)(name);
+	//u->u_filename = name;
+    u->u_arg[0] = (int)(name);
 	//printf("%s\n", (char *)u->u_arg[0]);
 	FileManager *fileManager = &Kernel::Instance().GetFileManager();
 	fileManager->ChDir();
@@ -257,7 +253,7 @@ void Cd(char *name)
 void Fin(char *extername, char* intername)
 {
     User *u = &Kernel::Instance().GetUser();
-	char buffer[1024] = {0};
+	char buffer[4096] = {0};
     
 	FILE *fp = fopen(extername, "rb");
     if(fp==NULL){
@@ -268,11 +264,11 @@ void Fin(char *extername, char* intername)
 	Fcreate(intername, mode);
     int fd = u->u_ar0;
 
-	int num = fread(buffer, 1, 1024, fp);
+	int num = fread(buffer, 1, 4096, fp);
 	while (num > 0)
 	{
 	    Fwrite(fd, buffer, num);
-		num = fread(buffer, 1, 1024, fp);
+		num = fread(buffer, 1, 4096, fp);
 	}
     if(fp!=NULL)
 	    fclose(fp);
@@ -291,20 +287,27 @@ void Fout(char* intername,char *extername)
     }
     
     int fd = u->u_ar0;
-	char buffer[1024] = {0};
+	char buffer[4096] = {0};
 	FILE *fp = fopen(extername, "wb");
     int num;
-	Fread(fd, buffer, 1024);
+	Fread(fd, buffer, 4096);
 	num = u->u_ar0;
     while (num > 0)
 	{
 		fwrite(buffer, 1, num, fp);
-		Fread(fd, buffer, 1024);
+		Fread(fd, buffer, 4096);
         num=u->u_ar0;
 	}
 	if(fp!=NULL)
         fclose(fp);
     Fclose(fd);
+}
+
+//13 - shutdown
+void Fshutdown()
+{
+    FileSystem *fileSystem = &Kernel::Instance().GetFileSystem();
+    fileSystem->Update();
 }
 
 int main()
@@ -313,7 +316,7 @@ int main()
 	InitSystem();
 	User *u = &Kernel::Instance().GetUser();
 
-    printf("welcome to me SecondFileSystem! Input 'help' to get more imformation!\n");
+    printf("welcome to my SecondFileSystem! Input 'help' to get more info!\n");
 
     while(1){
 		printf("[%s]# ", u->u_curdir);
@@ -325,6 +328,7 @@ int main()
         //1 - ls
         if(strcmp(op,"ls")==0){
             Ls();
+            continue;
         }
         
         //2 - fopen
@@ -338,6 +342,8 @@ int main()
 				printf("fopen: error!\n");
 			else
 				printf("fopen: return fd:%d\n", u->u_ar0);
+
+            continue;
         }
         
         //3 - fclose
@@ -349,27 +355,35 @@ int main()
 				printf("fclose: error!\n");
 			else
 				printf("fclose: fd:%d is closed.\n", u->u_ar0);
+
+            continue;
         }
         
         //4 - fread
         if(strcmp(op,"fread")==0){
             int fd;
-			char buffer[1024] = {0};
+			char buffer[4096] = {0};
 			int length;
 			scanf("%d", &fd);
 			scanf("%d", &length);
 			Fread(fd, buffer, length);
-			printf("fread:%s\n", buffer);
+			printf("fread %d chars: %s\n", u->u_ar0, buffer);
+
+			continue;
         }
+
         //5 - fwrite
         if(strcmp(op,"fwrite")==0){
             int fd;
-			char buffer[1024] = {0};
+			char buffer[4096] = {0};
 			scanf("%d", &fd);
 			scanf("%s", buffer);
             Fwrite(fd, buffer, strlen(buffer));
 			printf("fwrite: write %d chars\n", u->u_ar0);
+
+			continue;
         }
+
         //6 - flseek 
         if(strcmp(op,"flseek")==0){
             int fd;
@@ -378,7 +392,10 @@ int main()
 			scanf("%d", &fd);
 			scanf("%d", &pos);
 			Flseek(fd, pos, mode);
+
+			continue;
         }
+
         //7 - fcreate
         if(strcmp(op,"fcreate")==0){
             char name[50];
@@ -386,13 +403,19 @@ int main()
 			scanf("%s", name);
             Fcreate(name,mode);
 			printf("fcreat: return fd:%d\n", u->u_ar0);
+
+			continue;
         }
+
         //8 - mkdir
         if(strcmp(op,"mkdir")==0){
             char name[50];
 			scanf("%s", name);
 			Mkdir(name);
+
+			continue;
         }
+
         //9 - fdelete
         if(strcmp(op,"fdelete")==0){
             char name[50];
@@ -402,7 +425,10 @@ int main()
 				printf("fdelete: error!\n");
 			else
 				printf("fdelete: success.\n", u->u_ar0);
+
+			continue;
         }
+
         //10 - cd
         if(strcmp(op,"cd")==0){
             char name[50];
@@ -410,6 +436,8 @@ int main()
 			Cd(name);
             if (u->u_error != User::MYNOERROR)
 				printf("cd: error!\n");
+
+			continue;
         }
         //11 - fin
         if(strcmp(op,"fin")==0){
@@ -418,7 +446,10 @@ int main()
 			scanf("%s", extername);
 			scanf("%s", intername);
 			Fin(extername, intername);
+
+			continue;
         }
+
         //12 - fout
         if(strcmp(op,"fout")==0){
             char intername[50];
@@ -426,22 +457,32 @@ int main()
 			scanf("%s", intername);
 			scanf("%s", extername);
 			Fout(intername,extername);
+
+			continue;
         }
-        //13 - shutdown
+
+        //13 - shutdown 必需安全关机
         if(strcmp(op,"shutdown")==0){
-            FileSystem *fileSystem = &Kernel::Instance().GetFileSystem();
-            fileSystem->Update();
+        	Fshutdown();
             break;
         }
+
         //14 - exit
         if(strcmp(op,"exit")==0){
-            break;
+        	printf("Try command ----- shutdown ----- please! \n");
+			continue;
         }
+
         //15 - help
         if(strcmp(op,"help")==0){
             HelpMenu();
+			continue;
         }
         
+		printf("Bad Command! Try command ----- help ----- please! \n");
+		char abort = 'a';
+		while( abort != '\n' )
+	        scanf("%c", &abort);
     }
     
     return 0;
