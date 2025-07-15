@@ -1,16 +1,26 @@
-# 同济大学操作系统课程设计 
+# 基于文件读写的单用户二级文件系统
 
-# 实验环境和使用说明
 
-## 实验环境
+---
+
+## 版本
+
+* **[Version 1 (v1 Branch)](https://github.com/0x79ff/OsProject/tree/v1)**: 操作系统课程设计版本
+* **[Version 2 (v2 Branch)](https://github.com/0x79ff/OsProject/tree/v2)**: 在v1的基础上优化了缓冲块逻辑：GetBlk(blkno)，将分配给blkno的缓存块从LRU队列中取出，送队尾
+
+---
+
+## 实验环境和使用说明
+
+### 实验环境
 
 Ubuntu 18.04 Linux虚拟机
 
-## 编译环境
+### 编译环境
 
 ![1713768270816](image/Readme/1713768270816.png)
 
-## 使用说明
+### 使用说明
 
 ![1713768291872](image/Readme/1713768291872.png)
 
@@ -18,7 +28,7 @@ Init FS rpcFS分别表示磁盘初始化程序、二级文件系统程序、文�
 
 myFS.exe和FS_client启动后都会有提示信息。
 
-# 二级文件系统测试
+## 二级文件系统测试
 
 目录切换到home下，并创建txts子目录，在txts子目录下实现文件的随机读写：
 
@@ -36,7 +46,7 @@ myFS.exe和FS_client启动后都会有提示信息。
 
 ![1713768457392](image/Readme/1713768457392.png)
 
-# 文件服务器测试
+## 文件服务器测试
 
 初始时有3个文件夹：
 
